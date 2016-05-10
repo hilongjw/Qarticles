@@ -213,11 +213,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }, {
             key: 'run',
-            value: function run() {
+            value: function run(time) {
+                time = time || 16;
                 this.speedArr[0] = this.nextSpeedArr[0];
                 this.speedArr[1] = this.nextSpeedArr[1];
 
-                this.moveTo(this.x + this.speedArr[0] * 0.016, this.y + this.speedArr[1] * 0.016);
+                this.moveTo(this.x + this.speedArr[0] * time / 1000, this.y + this.speedArr[1] * time / 1000);
             }
         }, {
             key: 'copy',
@@ -449,8 +450,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         tree.insert(dotArr[_i2]);
     }
 
+    var timetick = new Date().getTime();
+
     var draw = function draw() {
         var tempRect = [];
+        var now = new Date().getTime();
 
         cxt.clearRect(0, 0, screenWidth, screenHeight);
 
@@ -469,12 +473,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         for (var _i4 = 0, _len = dotArr.length; _i4 < _len; _i4++) {
-            dotArr[_i4].run();
+            dotArr[_i4].run(now - timetick);
             dotArr[_i4].updateColor(screenWidth, screenHeight);
             dotArr[_i4].draw(cxt);
             dotArr[_i4].linkCount = 0;
         }
 
+        timetick = now;
         requestAnimationFrame(draw);
     };
     requestAnimationFrame(draw);
