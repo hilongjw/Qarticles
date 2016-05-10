@@ -1,4 +1,3 @@
-
 (function(global) {
     let cacheArr = []
 
@@ -142,9 +141,9 @@
     }
 
     class Rect {
-        constructor(x, y, width, height, speedArr = [20, 20]) {
+        constructor(x, y, width, height, speedArr = {0: 20, 1: 20}) {
             this.speedArr = speedArr
-            this.nextSpeedArr = this.speedArr.slice()
+            this.nextSpeedArr = {0: this.speedArr[0], 1: this.speedArr[1]}
             this.resize(width, height)
             this.moveTo(x, y)
         }
@@ -303,7 +302,7 @@
     }
 
     class Dot extends Rect {
-        constructor(x, y, width, height, speedArr = [0,0], linkCount, dotColorFuc, lineColorFuc) {
+        constructor(x, y, width, height, speedArr = {0:10, 1: 10}, linkCount, dotColorFuc, lineColorFuc) {
             super(x, y, width, height, speedArr)
             this.x = x
             this.y = y
@@ -311,7 +310,7 @@
             this.width = width
             this.height = height
             this.speedArr = speedArr
-            this.nextSpeedArr = speedArr.slice()
+            this.nextSpeedArr = {0: this.speedArr[0], 1: this.speedArr[1]}
             this.linkCount = linkCount
             this.dotColorFuc = dotColorFuc
             this.lineColorFuc = lineColorFuc
@@ -365,6 +364,17 @@
             })
         }
 
+        distance (item) {
+            return Math.pow(this.x - item.x, 2) + Math.pow(this.y - item.y, 2) < Math.pow(this.radius + item.radius, 2)
+        }
+
+        isCollide (item1, item2) {
+            if (item1.distance(item2) && this.isApproach(item1, item2)) {
+                item1.collide(item2)
+                item2.collide(item1)
+            }
+        }
+
     }
     
     let tempRectArr = []
@@ -376,11 +386,16 @@
     const defaultScreenWidth = window.innerWidth;
     const defaultScreenHeight = window.innerHeight - 10;
     const covColorFuc = function (dot, w, h) {
-            return `rgb(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))})`
-        }
+        return `rgb(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))})`
+    }
+    const covSpeedFuc = function (m) {
+        return  Math.random() * m * (Math.random() * 10 > 5 ? -1 : 1)
+    }
 
     class Qarticles {
         constructor(canvas, options = {}) {
+            this.vxFuc = options.vxFuc || covSpeedFuc
+            this.vyFuc = options.vyFuc || covSpeedFuc
             this.dotColorFuc = options.dotColorFuc || covColorFuc
             this.lineColorFuc = options.lineColorFuc || covColorFuc
             this.count = options.count || 32
@@ -412,7 +427,7 @@
                         Math.floor(Math.random() * (this.screenHeight - 20)), 
                         Math.random() * 20 + 5, 
                         Math.random() * 20 + 5, 
-                        [Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1), Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1)],
+                        {0: this.vxFuc(20), 1: this.vyFuc(20)},
                         this.linkCount,
                         this.dotColorFuc,
                         this.lineColorFuc
