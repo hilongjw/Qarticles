@@ -22,19 +22,11 @@
         let cacheArr = []
 
         const concatArr = function(targetArr) {
-            var arr, i;
-            for (i = 1; i < arguments.length; i++) {
+            let arr
+            for (let i = 1; i < arguments.length; i++) {
                 arr = arguments[i];
                 Array.prototype.push.apply(targetArr, arr);
             }
-        }
-
-        const spliceArr = function(arr, index, num) {
-            var i, len;
-            for (i = index + num, len = arr.length; i < len; i++) {
-                arr[i - num] = arr[i];
-            }
-            arr.length = len - num;
         }
 
         class Qtree {
@@ -410,12 +402,13 @@
         const screenHeight = window.innerHeight - 10;
 
         let dotArr = []
+        let tree
 
         canvas.height = screenHeight
         canvas.width = screenWidth
         canvas.setAttribute('style', `height: ${screenHeight}px; width: ${screenWidth}px`)
 
-        for (i = 0; i < 64; i++) {
+        for (let i = 0; i < 64; i++) {
             dotArr.push(
                 new Dot(
                     Math.floor(Math.random() * (screenWidth - 20)), 
@@ -440,19 +433,19 @@
 
             tree.refresh()
 
-            for (i = 0, len = dotArr.length; i < len; i++) {
+            for (let i = 0, len = dotArr.length; i < len; i++) {
 
                 tempRect = tree.retrieve(dotArr[i])
                 dotArr[i].canLink(tempRect, cxt)
 
-                for (j = 0; j < tempRect.length; j++) {
+                for (let j = 0; j < tempRect.length; j++) {
                     dotArr[i].isCollide(dotArr[i], tempRect[j])
                 }
 
                 dotArr[i].collide(new Rect(0, 0, screenWidth, screenHeight), true);
             }
 
-            for (i = 0, len = dotArr.length; i < len; i++) {
+            for (let i = 0, len = dotArr.length; i < len; i++) {
                 dotArr[i].run()
                 dotArr[i].updateColor(screenWidth, screenHeight)
                 dotArr[i].draw(cxt)
@@ -463,7 +456,7 @@
         }
         requestAnimationFrame(draw)
 
-    })(this, this.document);
+    })(window, window.document);
     </script>
 </body>
 </html>
