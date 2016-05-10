@@ -1,4 +1,5 @@
-(function(global) {
+
+    (function(global) {
         let cacheArr = []
 
         const concatArr = function(targetArr) {
@@ -302,7 +303,7 @@
         }
 
         class Dot extends Rect {
-            constructor(x, y, width, height, speedArr = [0,0]) {
+            constructor(x, y, width, height, speedArr = [0,0], linkCount, dotColorFuc, lineColorFuc) {
                 super(x, y, width, height, speedArr)
                 this.x = x
                 this.y = y
@@ -311,22 +312,28 @@
                 this.height = height
                 this.speedArr = speedArr
                 this.nextSpeedArr = speedArr.slice()
-                this.linkCount = 0
+                this.linkCount = linkCount
+                this.dotColorFuc = dotColorFuc
+                this.lineColorFuc = lineColorFuc
+                this.dotColor = '#ccc'
+                this.lineColor = '#ccc'
+                this.linkingCount = 0
                 this.updateColor()
             }
 
             updateColor (screenWidth, screenHeight) {
-                this.color = `rgb(${Math.floor(255 * (1 - this.x / screenWidth))}, ${
-                       Math.floor(255 * (1 - this.y / screenHeight))},${Math.floor(255 * (this.speedArr[0]/ 100))})`
+                this.dotColor = this.dotColorFuc(this, screenWidth, screenHeight)
+                this.lineColor = this.lineColorFuc(this, screenWidth, screenHeight)
             }
 
             draw (cxt) {
-                cxt.fillStyle = this.color
+                cxt.fillStyle = this.dotColor
                 cxt.save()
                 cxt.beginPath()
                 cxt.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true)
                 cxt.fill()
                 cxt.restore()
+                this.linkingCount = 0
             }
 
             willOut (width, height) {
@@ -339,7 +346,7 @@
             }
 
             linkWith (item, cxt) {
-                cxt.strokeStyle = this.color
+                cxt.strokeStyle = this.lineColor
                 cxt.lineWidth = .4
                 cxt.beginPath()
                 cxt.moveTo(this.x, this.y)
@@ -347,22 +354,18 @@
                 cxt.stroke()
                 cxt.closePath()
                 cxt.save()
-                item.linkCount++
+                item.linkingCount++
             }
 
             canLink (dots, cxt) {
                 dots.forEach(dot => {
-                    if (dot.linkCount < 6) {
+                    if (dot.linkingCount < dot.linkCount) {
                         this.linkWith(dot, cxt)
                     }
                 })
             }
 
         }
-
-        global.Dot = Dot
-        global.Rect = Rect;
-        global.Qtree = Qtree;
         
         let tempRectArr = []
         tempRectArr.push(
@@ -370,70 +373,88 @@
             new Rect(0, 0, 0, 0)
         );
 
-    })(window);
+        const defaultScreenWidth = window.innerWidth;
+        const defaultScreenHeight = window.innerHeight - 10;
+        const covColorFuc = function (dot, w, h) {
+                return `rgb(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))})`
+            }
 
-    (function(global, doc) {
-        const canvas = document.getElementById('cov')
-        const cxt = canvas.getContext('2d')
-        const Dot = global.Dot
-        const Qtree = global.Qtree
-        const Rect = global.Rect
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight - 10;
+        class Particles {
+            constructor(canvas, options = {}) {
+                this.dotColorFuc = options.dotColorFuc || covColorFuc
+                this.lineColorFuc = options.lineColorFuc || covColorFuc
+                this.count = options.count || 32
+                this.linkCount = options.linkCount || 4
+                this.screenWidth = options.screenWidth || defaultScreenWidth
+                this.screenHeight = options.screenHeight || defaultScreenHeight
+                this.dotArr = []
+                this.tree
+                this.setCanvas(canvas)
+                this.init()
+                this.loop()
+            }
 
-        let dotArr = []
-        let tree
+            setCanvas (canvas) {
+                if (!canvas)  return console.error('canvas is must be requried')
+                this.canvas = canvas
+                canvas.height = this.screenHeight
+                canvas.width = this.screenWidth
+                canvas.setAttribute('style', `height: ${this.screenHeight}px; width: ${this.screenWidth}px`)
+                this.cxt = this.canvas.getContext('2d')
+            }
 
-        canvas.height = screenHeight
-        canvas.width = screenWidth
-        canvas.setAttribute('style', `height: ${screenHeight}px; width: ${screenWidth}px`)
+            init () {
+                this.dotArr.length = 0
+                this.tree = new Qtree(new Rect(0, 0, this.screenWidth, this.screenHeight))
+                for (let i = 0; i < this.count; i++) {
+                    let dot = new Dot(
+                            Math.floor(Math.random() * (this.screenWidth - 20)), 
+                            Math.floor(Math.random() * (this.screenHeight - 20)), 
+                            Math.random() * 20 + 5, 
+                            Math.random() * 20 + 5, 
+                            [Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1), Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1)],
+                            this.linkCount,
+                            this.dotColorFuc,
+                            this.lineColorFuc
+                            )
+                    this.dotArr.push(dot)
+                    this.tree.insert(dot)
+                }
+            }
 
-        for (let i = 0; i < 64; i++) {
-            dotArr.push(
-                new Dot(
-                    Math.floor(Math.random() * (screenWidth - 20)), 
-                    Math.floor(Math.random() * (screenHeight - 20)), 
-                    Math.random() * 20 + 5, 
-                    Math.random() * 20 + 5, 
-                    [Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1), Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1)])
-            )
-        }
+            draw () {
+                let tempRect = []
 
+                this.cxt.clearRect(0, 0, this.screenWidth, this.screenHeight)
 
-        tree = new Qtree(new Rect(0, 0, screenWidth, screenHeight))
+                this.tree.refresh()
 
-        for (let i = 0, l = dotArr.length; i < l; i++) {
-            tree.insert(dotArr[i])
-        }
+                for (let i = 0, len = this.dotArr.length; i < len; i++) {
 
-        const draw = function draw() {
-            var tempRect = []
+                    tempRect = this.tree.retrieve(this.dotArr[i])
+                    this.dotArr[i].canLink(tempRect, this.cxt)
 
-            cxt.clearRect(0, 0, screenWidth, screenHeight)
+                    for (let j = 0; j < tempRect.length; j++) {
+                        this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
+                    }
 
-            tree.refresh()
-
-            for (let i = 0, len = dotArr.length; i < len; i++) {
-
-                tempRect = tree.retrieve(dotArr[i])
-                dotArr[i].canLink(tempRect, cxt)
-
-                for (let j = 0; j < tempRect.length; j++) {
-                    dotArr[i].isCollide(dotArr[i], tempRect[j])
+                    this.dotArr[i].collide(new Rect(0, 0, this.screenWidth, this.screenHeight), true);
                 }
 
-                dotArr[i].collide(new Rect(0, 0, screenWidth, screenHeight), true);
+                for (let i = 0, len = this.dotArr.length; i < len; i++) {
+                    this.dotArr[i].run()
+                    this.dotArr[i].updateColor(this.screenWidth, this.screenHeight)
+                    this.dotArr[i].draw(this.cxt)
+                }
+
+                requestAnimationFrame(this.draw.bind(this))
             }
 
-            for (let i = 0, len = dotArr.length; i < len; i++) {
-                dotArr[i].run()
-                dotArr[i].updateColor(screenWidth, screenHeight)
-                dotArr[i].draw(cxt)
-                dotArr[i].linkCount = 0
+            loop () {
+                requestAnimationFrame(this.draw.bind(this))
             }
-
-            requestAnimationFrame(draw)
         }
-        requestAnimationFrame(draw)
+        
+        global.Particles = Particles
 
-    })(window, window.document);
+    })(window);
