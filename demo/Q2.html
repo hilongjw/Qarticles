@@ -190,14 +190,13 @@
                 cxt.restore()
             }
 
-            run (time) {
-                time = time || 16
+            run () {
                 this.speedArr[0] = this.nextSpeedArr[0]
                 this.speedArr[1] = this.nextSpeedArr[1]
 
                 this.moveTo(
-                    this.x + this.speedArr[0] * time / 1000,
-                    this.y + this.speedArr[1] * time / 1000
+                    this.x + this.speedArr[0] * 0.016,
+                    this.y + this.speedArr[1] * 0.016
                 )
             }
 
@@ -427,11 +426,8 @@
             tree.insert(dotArr[i])
         }
 
-        let timetick = new Date().getTime()
-
         const draw = function draw() {
             var tempRect = []
-            let now = new Date().getTime()
 
             cxt.clearRect(0, 0, screenWidth, screenHeight)
 
@@ -450,13 +446,12 @@
             }
 
             for (let i = 0, len = dotArr.length; i < len; i++) {
-                dotArr[i].run(now - timetick)
+                dotArr[i].run()
                 dotArr[i].updateColor(screenWidth, screenHeight)
                 dotArr[i].draw(cxt)
                 dotArr[i].linkCount = 0
             }
 
-            timetick = now
             requestAnimationFrame(draw)
         }
         requestAnimationFrame(draw)
