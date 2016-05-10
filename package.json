@@ -2,7 +2,7 @@
   "name": "Qarticles",
   "version": "0.2.0",
   "description": "A lightweight and high performance JavaScript library for creating particles",
-  "main": "index.js",
+  "main": "qarticles.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
