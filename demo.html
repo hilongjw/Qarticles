@@ -17,7 +17,8 @@
 </head>
 <body>
     <canvas id="cov"></canvas>
-    <script>'use strict';
+    <script>
+    'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -31,19 +32,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var cacheArr = [];
 
     var concatArr = function concatArr(targetArr) {
-        var arr, i;
-        for (i = 1; i < arguments.length; i++) {
+        var arr = void 0;
+        for (var i = 1; i < arguments.length; i++) {
             arr = arguments[i];
             Array.prototype.push.apply(targetArr, arr);
         }
-    };
-
-    var spliceArr = function spliceArr(arr, index, num) {
-        var i, len;
-        for (i = index + num, len = arr.length; i < len; i++) {
-            arr[i - num] = arr[i];
-        }
-        arr.length = len - num;
     };
 
     var Qtree = function () {
@@ -124,10 +117,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     this.split();
 
-                    for (var _i = this.objects.length - 1; _i >= 0; _i--) {
-                        var _index = this.getIndex(this.objects[_i]);
+                    for (var i = this.objects.length - 1; i >= 0; i--) {
+                        var _index = this.getIndex(this.objects[i]);
                         if (_index !== -1) {
-                            this.nodes[_index].insert(this.objects.splice(_i, 1)[0]);
+                            this.nodes[_index].insert(this.objects.splice(i, 1)[0]);
                         }
                     }
                 }
@@ -137,19 +130,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function refresh(scope) {
                 scope = scope || this;
 
-                for (var _i2 = this.objects.length - 1; _i2 >= 0; _i2--) {
-                    var index = this.getIndex(this.objects[_i2], true);
+                for (var i = this.objects.length - 1; i >= 0; i--) {
+                    var index = this.getIndex(this.objects[i], true);
                     if (index === -1) {
                         if (this !== scope) {
-                            scope.insert(this.objects.splice(_i2, 1)[0]);
+                            scope.insert(this.objects.splice(i, 1)[0]);
                         }
                     } else if (this.nodes.length) {
-                        this.nodes[index].insert(this.objects.splice(_i2, 1)[0]);
+                        this.nodes[index].insert(this.objects.splice(i, 1)[0]);
                     }
                 }
 
-                for (var _i3 = 0, _len = this.nodes.length; _i3 < _len; _i3++) {
-                    this.nodes[_i3].refresh(scope);
+                for (var _i = 0, len = this.nodes.length; _i < len; _i++) {
+                    this.nodes[_i].refresh(scope);
                 }
             }
         }, {
@@ -167,8 +160,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         this.nodes[index].retrieve(rect);
                     } else {
                         var arr = rect.carve(this.bounds.cX, this.bounds.cY);
-                        for (var _i4 = arr.length - 1; _i4 >= 0; _i4--) {
-                            index = this.getIndex(arr[_i4]);
+                        for (var i = arr.length - 1; i >= 0; i--) {
+                            index = this.getIndex(arr[i]);
                             this.nodes[index].retrieve(rect);
                         }
                     }
@@ -440,6 +433,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var screenHeight = window.innerHeight - 10;
 
     var dotArr = [];
+    var tree = void 0;
 
     canvas.height = screenHeight;
     canvas.width = screenWidth;
@@ -449,10 +443,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         dotArr.push(new Dot(Math.floor(Math.random() * (screenWidth - 20)), Math.floor(Math.random() * (screenHeight - 20)), Math.random() * 20 + 5, Math.random() * 20 + 5, [Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1), Math.random() * 10 + 20 * (Math.random() * 10 > 5 ? -1 : 1)]));
     }
 
-    var tree = new Qtree(new Rect(0, 0, screenWidth, screenHeight));
+    tree = new Qtree(new Rect(0, 0, screenWidth, screenHeight));
 
-    for (var _i5 = 0, l = dotArr.length; _i5 < l; _i5++) {
-        tree.insert(dotArr[_i5]);
+    for (var _i2 = 0, l = dotArr.length; _i2 < l; _i2++) {
+        tree.insert(dotArr[_i2]);
     }
 
     var draw = function draw() {
@@ -462,23 +456,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         tree.refresh();
 
-        for (var i = 0, len = dotArr.length; i < len; i++) {
+        for (var _i3 = 0, len = dotArr.length; _i3 < len; _i3++) {
 
-            tempRect = tree.retrieve(dotArr[i]);
-            dotArr[i].canLink(tempRect, cxt);
+            tempRect = tree.retrieve(dotArr[_i3]);
+            dotArr[_i3].canLink(tempRect, cxt);
 
             for (var j = 0; j < tempRect.length; j++) {
-                dotArr[i].isCollide(dotArr[i], tempRect[j]);
+                dotArr[_i3].isCollide(dotArr[_i3], tempRect[j]);
             }
 
-            dotArr[i].collide(new Rect(0, 0, screenWidth, screenHeight), true);
+            dotArr[_i3].collide(new Rect(0, 0, screenWidth, screenHeight), true);
         }
 
-        for (i = 0, len = dotArr.length; i < len; i++) {
-            dotArr[i].run();
-            dotArr[i].updateColor(screenWidth, screenHeight);
-            dotArr[i].draw(cxt);
-            dotArr[i].linkCount = 0;
+        for (var _i4 = 0, _len = dotArr.length; _i4 < _len; _i4++) {
+            dotArr[_i4].run();
+            dotArr[_i4].updateColor(screenWidth, screenHeight);
+            dotArr[_i4].draw(cxt);
+            dotArr[_i4].linkCount = 0;
         }
 
         requestAnimationFrame(draw);
