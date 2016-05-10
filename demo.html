@@ -17,9 +17,18 @@
 </head>
 <body>
     <canvas id="cov"></canvas>
-    <script src="qarticles.min.js"></script>
+    <script src="../qarticles.js"></script>
     <script>
-        var q = new Qarticles(document.getElementById('cov'))
+        (function (global) {
+            let speed = 20
+            if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+                speed = 100
+            }
+            const options = {
+                speed: speed
+            }
+            let qarticles = new Qarticles(document.getElementById('cov'), options)
+        })(window);
     </script>
 </body>
 </html>
