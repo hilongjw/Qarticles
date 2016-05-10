@@ -1,7 +1,7 @@
 {
-  "name": "q-particles",
-  "version": "0.1.0",
-  "description": "",
+  "name": "Qarticles",
+  "version": "0.2.0",
+  "description": "A lightweight and high performance JavaScript library for creating particles",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,7 @@
   "author": "Awe",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hilongjw/Q-particles/issues"
+    "url": "https://github.com/hilongjw/Qarticles/issues"
   },
-  "homepage": "https://github.com/hilongjw/Q-particles#readme"
+  "homepage": "https://github.com/hilongjw/Qarticles#readme"
 }
