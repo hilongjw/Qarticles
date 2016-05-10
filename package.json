@@ -1,6 +1,6 @@
 {
   "name": "Qarticles",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A lightweight and high performance JavaScript library for creating particles",
   "main": "qarticles.js",
   "scripts": {
