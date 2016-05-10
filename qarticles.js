@@ -394,6 +394,7 @@
 
     class Qarticles {
         constructor(canvas, options = {}) {
+            this.speed = options.speed || 30
             this.vxFuc = options.vxFuc || covSpeedFuc
             this.vyFuc = options.vyFuc || covSpeedFuc
             this.dotColorFuc = options.dotColorFuc || covColorFuc
@@ -427,7 +428,7 @@
                         Math.floor(Math.random() * (this.screenHeight - 20)), 
                         Math.random() * 20 + 5, 
                         Math.random() * 20 + 5, 
-                        {0: this.vxFuc(20), 1: this.vyFuc(20)},
+                        {0: this.vxFuc(this.speed), 1: this.vyFuc(this.speed)},
                         this.linkCount,
                         this.dotColorFuc,
                         this.lineColorFuc
