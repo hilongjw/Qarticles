@@ -15,7 +15,7 @@ A lightweight and high performance JavaScript library for creating particles
 
 <script src="src_to_qarticles.js"></script>
 <script>
-    var Qarticles = new Qarticles(document.getElementById('cov'))
+    var qarticles = new Qarticles(document.getElementById('cov'))
 </script>
 
 ```
@@ -38,7 +38,7 @@ var options = {
 }
 
 
-var Qarticles = new Qarticles(canvas, options)
+var qarticles = new Qarticles(canvas, options)
 
 ```
 
