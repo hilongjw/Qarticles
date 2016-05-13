@@ -17,7 +17,7 @@
             this.bounds = bounds
             this.parent = parent
             this.MAX_OBJECTS = 10
-            this.MAX_LEVELS = 6
+            this.MAX_LEVELS = 5
         }
 
         clear () {
@@ -389,26 +389,69 @@
     tempRectArr.push(
         new Rect(0, 0, 0, 0),
         new Rect(0, 0, 0, 0)
-    );
+    )
 
-    const defaultScreenWidth = window.innerWidth;
-    const defaultScreenHeight = window.innerHeight - 10;
-    const covColorFuc = function (dot, w, h) {
+    const defaultScreenWidth = window.innerWidth
+    const defaultScreenHeight = window.innerHeight - 10
+
+    const covColorFuc = (dot, w, h) => {
         return `rgb(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))})`
     }
-    const covSpeedFuc = function (m) {
+
+    const covSpeedFuc = (m) => {
         return  Math.random() * m * (Math.random() * 10 > 5 ? -1 : 1)
+    }
+
+    const sizeFuc = (sizeOption = {}) => {
+        let min = sizeOption.min || 0
+        let max = sizeOption.max || 20
+        let random = sizeOption.random || true
+        let size = sizeOption.size || 10
+        if (random) {
+            if (sizeOption.size) {
+                return () => {return Math.random() * size}
+            }
+            return () => {return Math.random() * (max - min) + min}
+        } else {
+            return () => { return size }
+        }
+    }
+
+    const lineLinkFuc =  (lineLink = {}) => {
+        let count = lineLink.count || 4
+        let show = lineLink.show === undefined ? true : lineLink.show
+
+        return {
+            count: count,
+            show: show
+        }
+    }
+
+    const dotFuc = (dot = {}) => {
+        const physical = dot.physical === undefined ? true : dot.physical
+
+        return {
+            physical: physical,
+            speed: dot.speed || 20,
+            vxFuc: dot.vxFuc || covSpeedFuc,
+            vyFuc: dot.vyFuc || covSpeedFuc,
+            count: dot.count || 64,
+            size: sizeFuc(dot.size)
+        }
+    }
+
+    const colorFuc = (color = {}) => {
+        return {
+            dotColorFuc: color.dotColorFuc ||  covColorFuc,
+            lineColorFuc: color.lineColorFuc ||  covColorFuc
+        }
     }
 
     class Qarticles {
         constructor(canvas, options = {}) {
-            this.speed = options.speed || 30
-            this.vxFuc = options.vxFuc || covSpeedFuc
-            this.vyFuc = options.vyFuc || covSpeedFuc
-            this.dotColorFuc = options.dotColorFuc || covColorFuc
-            this.lineColorFuc = options.lineColorFuc || covColorFuc
-            this.count = options.count || 32
-            this.linkCount = options.linkCount || 4
+            this.dot = dotFuc(options.dot)
+            this.lineLink = lineLinkFuc(options.lineLink)
+            this.color = colorFuc(options.color)
             this.screenWidth = options.screenWidth || defaultScreenWidth
             this.screenHeight = options.screenHeight || defaultScreenHeight
             this.dotArr = []
@@ -430,16 +473,17 @@
         init () {
             this.dotArr.length = 0
             this.tree = new Qtree(new Rect(0, 0, this.screenWidth, this.screenHeight))
-            for (let i = 0; i < this.count; i++) {
+            for (let i = 0; i < this.dot.count; i++) {
+                let size = this.dot.size()
                 let dot = new Dot(
                         Math.floor(Math.random() * (this.screenWidth - 20)), 
                         Math.floor(Math.random() * (this.screenHeight - 20)), 
-                        Math.random() * 20 + 5, 
-                        Math.random() * 20 + 5, 
-                        {0: this.vxFuc(this.speed), 1: this.vyFuc(this.speed)},
-                        this.linkCount,
-                        this.dotColorFuc,
-                        this.lineColorFuc
+                        size, 
+                        size, 
+                        {0: this.dot.vxFuc(this.dot.speed), 1: this.dot.vyFuc(this.dot.speed)},
+                        this.lineLink.count,
+                        this.color.dotColorFuc,
+                        this.color.lineColorFuc
                         )
                 this.dotArr.push(dot)
                 this.tree.insert(dot)
@@ -456,10 +500,15 @@
             for (let i = 0, len = this.dotArr.length; i < len; i++) {
 
                 tempRect = this.tree.retrieve(this.dotArr[i])
-                this.dotArr[i].canLink(tempRect, this.cxt)
 
-                for (let j = 0; j < tempRect.length; j++) {
-                    this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
+                if (this.lineLink.show) {
+                    this.dotArr[i].canLink(tempRect, this.cxt)
+                }
+
+                if (this.physical) {
+                    for (let j = 0; j < tempRect.length; j++) {
+                        this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
+                    }
                 }
 
                 this.dotArr[i].run(this.screenWidth, this.screenHeight)

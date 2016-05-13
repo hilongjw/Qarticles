@@ -20,15 +20,43 @@
     <script src="../qarticles.js"></script>
     <script>
         (function (global) {
-            let speed = 40
+            var speed = 40
             if ( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
                 speed = 200
             }
-            const options = {
-                speed: speed,
-                count: 256,
-                linkCount: 0
+            var covColorFuc = function (dot, w, h) {
+                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.4)`
             }
+            var lineColorFuc = function (dot, w, h) {
+                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.1)`
+            }
+            var covSpeedFuc = (speed) => {
+                return  Math.random() * speed * (Math.random() * 10 > 5 ? -1 : 1)
+            }
+            var options = {
+                lineLink: {
+                    count: 2,
+                    show: false
+                },
+                color: {
+                    dotColorFuc: covColorFuc,
+                    lineColorFuc: lineColorFuc,
+                },
+                dot: {
+                    physical: false,
+                    speed: speed,
+                    vxFuc: covSpeedFuc,
+                    vyFuc: covSpeedFuc,
+                    count: 80,
+                    size: {
+                        random: true,
+                        max: 20,
+                        min: 0
+                    }
+                }
+                
+            }
+            
             let qarticles = new Qarticles(document.getElementById('cov'), options)
         })(window);
     </script>
