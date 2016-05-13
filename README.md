@@ -9,23 +9,26 @@ A lightweight and high performance JavaScript library for creating particles
 
 ### Install
 
+* base
+
+your html
+
 ```html
 <script src="src_to_qarticles.js"></script>
 
 ```
-### npm
+
+* npm
 
 ```bash
 npm i Qarticles --save
 ```
 
-### npm install
+your app.js
 
 ```javascript
 
 import Qarticles from 'Qarticles'
-
-
 
 ```
 
