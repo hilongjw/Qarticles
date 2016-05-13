@@ -399,7 +399,7 @@
     }
 
     const covSpeedFuc = (m) => {
-        return  Math.random() * m * (Math.random() * 10 > 5 ? -1 : 1)
+        return  Math.random() * m * (Math.random() * 2 - 1)
     }
 
     const sizeFuc = (sizeOption = {}) => {
