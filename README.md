@@ -21,7 +21,7 @@ your html
 * npm
 
 ```bash
-npm i Qarticles --save
+npm i qarticles --save
 ```
 
 your app.js
