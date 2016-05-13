@@ -7,17 +7,16 @@ A lightweight and high performance JavaScript library for creating particles
 
 [click here](http://hilongjw.github.io/Qarticles/demo.html).
 
-## How to Use
-
 ### Install
 
 ```html
-
 <script src="src_to_qarticles.js"></script>
-<script>
-    var qarticles = new Qarticles(document.getElementById('cov'))
-</script>
 
+```
+### npm
+
+```bash
+npm i Qarticles --save
 ```
 
 ### npm install
@@ -26,9 +25,18 @@ A lightweight and high performance JavaScript library for creating particles
 
 import Qarticles from 'Qarticles'
 
-let qarticles = new Qarticles(document.getElementById('cov'))
+
 
 ```
+
+### Usage
+
+```
+var canvas = document.getElementById('cov')
+var qarticles = new Qarticles(canvas)
+
+```
+
 
 ### Options
 
