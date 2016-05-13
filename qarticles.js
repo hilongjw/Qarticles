@@ -10,13 +10,14 @@
     }
 
     class Qtree {
-        constructor(bounds, level = 0) {
+        constructor(bounds, level = 0, parent = null) {
             this.objects = []
             this.nodes = []
             this.level = level
             this.bounds = bounds
+            this.parent = parent
             this.MAX_OBJECTS = 10
-            this.MAX_LEVELS = 5
+            this.MAX_LEVELS = 6
         }
 
         clear () {
@@ -34,10 +35,10 @@
             let sHeight = this.bounds.sHeight
 
             this.nodes.push(
-                new Qtree(new Rect(this.bounds.cX, y, sWidth, sHeight), this.level + 1),
-                new Qtree(new Rect(x, y, sWidth, sHeight), this.level + 1),
-                new Qtree(new Rect(x, this.bounds.cY, sWidth, sHeight), this.level + 1),
-                new Qtree(new Rect(this.bounds.cX, this.bounds.cY, sWidth, sHeight), this.level + 1)
+                new Qtree(new Rect(this.bounds.cX, y, sWidth, sHeight), this.level + 1, this),
+                new Qtree(new Rect(x, y, sWidth, sHeight), this.level + 1, this),
+                new Qtree(new Rect(x, this.bounds.cY, sWidth, sHeight), this.level + 1, this),
+                new Qtree(new Rect(this.bounds.cX, this.bounds.cY, sWidth, sHeight), this.level + 1, this)
             )
         }
 
@@ -98,16 +99,14 @@
 
         refresh (scope) {
             scope = scope || this
-
             for (let i = this.objects.length - 1; i >= 0; i--) {
                 let index = this.getIndex(this.objects[i], true)
                 if (index === -1) {
-                    if (this !== scope) {
-                        scope.insert(this.objects.splice(i, 1)[0]);
-                        
+                    if (this.parent) {
+                        this.parent.insert(this.objects.splice(i, 1)[0])
                     }
                 } else if (this.nodes.length) {
-                    this.nodes[index].insert(this.objects.splice(i, 1)[0]);
+                    this.nodes[index].insert(this.objects.splice(i, 1)[0])
                 }
             }
 
@@ -325,6 +324,18 @@
             this.lineColor = this.lineColorFuc(this, screenWidth, screenHeight)
         }
 
+        run (screenWidth, screenHeight) {
+            this.limit(screenWidth, screenHeight)
+            this.speedArr[0] = this.nextSpeedArr[0]
+            this.speedArr[1] = this.nextSpeedArr[1]
+
+            this.moveTo(
+                this.x + this.speedArr[0] * 0.016,
+                this.y + this.speedArr[1] * 0.016
+            )
+            this.updateColor(screenWidth, screenHeight)
+        }
+
         draw (cxt) {
             cxt.fillStyle = this.dotColor
             cxt.save()
@@ -335,12 +346,13 @@
             this.linkingCount = 0
         }
 
-        willOut (width, height) {
-            if (this.x + this.speedArr[0] > width || this.x + this.speedArr[0] < 0) {
-                this.speedArr[0] = - this.speedArr[0]
+        limit (width, height) {
+            if ((this.x + this.sWidth) >= width || (this.x - this.sWidth) <= 0) {
+                this.nextSpeedArr[0] = -this.nextSpeedArr[0]
             }
-            if (this.y + this.speedArr[1] > height || this.y + this.speedArr[1] < 1) {
-                this.speedArr[1] = - this.speedArr[1]
+
+            if ((this.y + this.sHeight) >= height || (this.y - this.sHeight) <= 0) {
+                this.nextSpeedArr[1] = -this.nextSpeedArr[1]
             }
         }
 
@@ -364,12 +376,8 @@
             })
         }
 
-        distance (item) {
-            return Math.pow(this.x - item.x, 2) + Math.pow(this.y - item.y, 2) < Math.pow(this.radius + item.radius, 2)
-        }
-
         isCollide (item1, item2) {
-            if (item1.distance(item2) && this.isApproach(item1, item2)) {
+            if (Math.pow(item1.x - item2.x, 2) + Math.pow(item1.y - item2.y, 2) < Math.pow(item1.radius + item2.radius, 2) && this.isApproach(item1, item2)) {
                 item1.collide(item2)
                 item2.collide(item1)
             }
@@ -454,12 +462,7 @@
                     this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
                 }
 
-                this.dotArr[i].collide(new Rect(0, 0, this.screenWidth, this.screenHeight), true);
-            }
-
-            for (let i = 0, len = this.dotArr.length; i < len; i++) {
-                this.dotArr[i].run()
-                this.dotArr[i].updateColor(this.screenWidth, this.screenHeight)
+                this.dotArr[i].run(this.screenWidth, this.screenHeight)
                 this.dotArr[i].draw(this.cxt)
             }
 
