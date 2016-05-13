@@ -9,7 +9,7 @@ A lightweight and high performance JavaScript library for creating particles
 
 ## How to Use
 
-### Basic
+### Install
 
 ```html
 
@@ -20,7 +20,17 @@ A lightweight and high performance JavaScript library for creating particles
 
 ```
 
-### Advanced
+### npm install
+
+```javascript
+
+import Qarticles from 'Qarticles'
+
+let qarticles = new Qarticles(document.getElementById('cov'))
+
+```
+
+### Options
 
 ```javascript
 
