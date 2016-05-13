@@ -505,7 +505,7 @@
                     this.dotArr[i].canLink(tempRect, this.cxt)
                 }
 
-                if (this.physical) {
+                if (this.dot.physical) {
                     for (let j = 0; j < tempRect.length; j++) {
                         this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
                     }

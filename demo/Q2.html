@@ -17,7 +17,7 @@
 </head>
 <body>
     <canvas id="cov"></canvas>
-    <script src="../qarticles.min.js"></script>
+    <script src="../qarticles.js"></script>
     <script>
         (function (global) {
             var speed = 40
@@ -25,13 +25,13 @@
                 speed = 200
             }
             var covColorFuc = function (dot, w, h) {
-                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.4)`
+                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.8)`
             }
             var lineColorFuc = function (dot, w, h) {
-                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.1)`
+                return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.4)`
             }
             var covSpeedFuc = (speed) => {
-                return  Math.random() * speed * (Math.random() * 2 - 1)
+                return  speed * (Math.random() * 2 - 1)
             }
             var options = {
                 lineLink: {
