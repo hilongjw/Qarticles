@@ -9,7 +9,7 @@ A lightweight and high performance JavaScript library for creating particles
 
 ## How to Use
 
-### basic
+### Basic
 
 ```html
 
@@ -20,23 +20,47 @@ A lightweight and high performance JavaScript library for creating particles
 
 ```
 
-### advanced
+### Advanced
 
 ```javascript
 
-var covColorFuc = function (dot, screenWidth, screenHeight) {
-                return `rgb(${Math.floor(255 * (1 - dot.x / screenWidth))}, ${Math.floor(255 * (1 - dot.y / screenHeight))}, ${Math.floor(255 * (dot.speedArr[0]/ 100))})`
-            }
 var canvas = document.getElementById('cov')
-var options = {
-    dotColorFuc: covColorFuc,
-    lineColorFuc: covColorFuc,
-    count: 32,
-    linkCount: 4,
-    screenWidth: 1080,
-    screenHeight: 1920
+
+var covColorFuc = function (dot, w, h) {
+    return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.4)`
 }
 
+var lineColorFuc = function (dot, w, h) {
+    return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.1)`
+}
+
+var covSpeedFuc = (speed) => {
+    return  Math.random() * speed * (Math.random() * 10 > 5 ? -1 : 1)
+}
+
+var options = {
+    lineLink: {
+        count: 2,
+        show: true
+    },
+    color: {
+        dotColorFuc: covColorFuc,
+        lineColorFuc: lineColorFuc,
+    },
+    dot: {
+        physical: true,
+        speed: speed,
+        vxFuc: covSpeedFuc,
+        vyFuc: covSpeedFuc,
+        count: 80,
+        size: {
+            random: true,
+            max: 20,
+            min: 0
+        }
+    }
+    
+}
 
 var qarticles = new Qarticles(canvas, options)
 
