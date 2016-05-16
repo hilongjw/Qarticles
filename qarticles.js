@@ -2,6 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) : (global.Qarticles = factory());
 })(this, function () {
+    'use strict';
     let cacheArr = []
 
     const concatArr = function(targetArr) {
@@ -10,6 +11,14 @@
             arr = arguments[i];
             Array.prototype.push.apply(targetArr, arr);
         }
+    }
+
+    const spliceArr = function(arr, index, num) {
+        let i, len
+        for (i = index + num, len = arr.length; i < len; i++) {
+            arr[i - num] = arr[i]
+        }
+        arr.length = len - num
     }
 
     class Qtree {
@@ -76,6 +85,8 @@
         }
 
         insert (item) {
+            let index
+            let tmpitem
             if (this.nodes.length) {
                 let index = this.getIndex(item)
                 if (index !== -1) {
@@ -92,24 +103,32 @@
                 this.split()
 
                 for (let i = this.objects.length - 1; i >= 0; i--) {
-                    let index = this.getIndex(this.objects[i]);
+                    index = this.getIndex(this.objects[i]);
                     if (index !== -1) {
-                        this.nodes[index].insert(this.objects.splice(i, 1)[0]);
+                        tmpitem = this.objects[i]
+                        spliceArr(this.objects, i, 1)
+                        this.nodes[index].insert(tmpitem)
                     }
                 }
             }
         }
 
         refresh (scope) {
+            let index, item
             scope = scope || this
+
             for (let i = this.objects.length - 1; i >= 0; i--) {
-                let index = this.getIndex(this.objects[i], true)
+                index = this.getIndex(this.objects[i], true)
                 if (index === -1) {
                     if (this.parent) {
-                        this.parent.insert(this.objects.splice(i, 1)[0])
+                        item = this.objects[i]
+                        spliceArr(this.objects, i, 1)
+                        this.parent.insert(item)
                     }
                 } else if (this.nodes.length) {
-                    this.nodes[index].insert(this.objects.splice(i, 1)[0])
+                    item = this.objects[i]
+                    spliceArr(this.objects, i, 1)
+                    this.nodes[index].insert(item)
                 }
             }
 
@@ -120,13 +139,13 @@
 
         retrieve (rect) {
             let result = cacheArr
-
+            let index
             if (this.level === 0) result.length = 0;
 
             concatArr(result, this.objects);
 
             if (this.nodes.length) {
-                let index = this.getIndex(rect);
+                index = this.getIndex(rect);
                 if (index !== -1) {
                     this.nodes[index].retrieve(rect);
                 } else {
@@ -474,11 +493,13 @@
         }
 
         init () {
+            let size
+            let dot
             this.dotArr.length = 0
             this.tree = new Qtree(new Rect(0, 0, this.screenWidth, this.screenHeight))
             for (let i = 0; i < this.dot.count; i++) {
-                let size = this.dot.size()
-                let dot = new Dot(
+                size = this.dot.size()
+                dot = new Dot(
                         Math.floor(Math.random() * (this.screenWidth - 20)), 
                         Math.floor(Math.random() * (this.screenHeight - 20)), 
                         size, 
@@ -494,13 +515,17 @@
         }
 
         draw () {
+            let i
+            let j
+            let len
+            let tmplen
             let tempRect = []
 
             this.cxt.clearRect(0, 0, this.screenWidth, this.screenHeight)
 
             this.tree.refresh()
 
-            for (let i = 0, len = this.dotArr.length; i < len; i++) {
+            for (i = 0, len = this.dotArr.length; i < len; i++) {
 
                 tempRect = this.tree.retrieve(this.dotArr[i])
 
@@ -509,7 +534,7 @@
                 }
 
                 if (this.dot.physical) {
-                    for (let j = 0; j < tempRect.length; j++) {
+                    for (j = 0, tmplen = tempRect.length; j < tmplen; j++) {
                         this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
                     }
                 }
@@ -525,5 +550,6 @@
             requestAnimationFrame(this.draw.bind(this))
         }
     }
+    
     return Qarticles
 });
