@@ -28,7 +28,7 @@ your app.js
 
 ```javascript
 
-import Qarticles from 'Qarticles'
+import Qarticles from 'qarticles'
 
 ```
 
