@@ -21,14 +21,14 @@ your html
 * npm
 
 ```bash
-npm i qarticles --save
+npm i Qarticles --save
 ```
 
 your app.js
 
 ```javascript
 
-import Qarticles from 'qarticles'
+import Qarticles from 'Qarticles'
 
 ```
 
