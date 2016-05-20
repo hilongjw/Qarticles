@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) : (global.Qarticles = factory());
-})(this, function () {
+}(this, function () {
     'use strict';
     let cacheArr = []
 
@@ -19,6 +19,7 @@
             arr[i - num] = arr[i]
         }
         arr.length = len - num
+        i = len = null
     }
 
     class Qtree {
@@ -30,6 +31,10 @@
             this.parent = parent
             this.MAX_OBJECTS = 10
             this.MAX_LEVELS = 5
+            this.INDEX_TMP_TOP = 0
+            this.INDEX_TMP_BOTTOM = 0
+            this.INDEX_TMP_LEFT = 0
+            this.INDEX_TMP_RIGHT = 0
         }
 
         clear () {
@@ -52,31 +57,35 @@
                 new Qtree(new Rect(x, this.bounds.cY, sWidth, sHeight), this.level + 1, this),
                 new Qtree(new Rect(this.bounds.cX, this.bounds.cY, sWidth, sHeight), this.level + 1, this)
             )
+
+            x
+            = y 
+            = sWidth 
+            = sHeight = null
         }
 
         getIndex (rect, checkIsInner) {
-            let onTop       = rect.y + rect.h <=  this.bounds.cY
-            let onBottom    = rect.y >= this.bounds.cY
-            let onLeft      = rect.x + rect.w <= this.bounds.cX
-            let onRight     = rect.x >= this.bounds.cX
+            this.INDEX_TMP_TOP      = rect.y + rect.h <=  this.bounds.cY
+            this.INDEX_TMP_BOTTOM   = rect.y >= this.bounds.cY
+            this.INDEX_TMP_LEFT     = rect.x + rect.w <= this.bounds.cX
+            this.INDEX_TMP_RIGHT    = rect.x >= this.bounds.cX
 
             if (checkIsInner &&
                 (Math.abs(rect.cX - this.bounds.cX) + rect.sWidth > this.bounds.sWidth ||
                 Math.abs(rect.cY - this.bounds.cY) + rect.sHeight > this.bounds.sHeight)) {
-
                 return -1
             }
 
-            if (onTop) {
-                if (onRight) {
+            if (this.INDEX_TMP_TOP) {
+                if (this.INDEX_TMP_RIGHT) {
                     return 0
-                } else if (onLeft) {
+                } else if (this.INDEX_TMP_LEFT) {
                     return 1
                 }
-            } else if (onBottom) {
-                if (onLeft) {
+            } else if (this.INDEX_TMP_BOTTOM) {
+                if (this.INDEX_TMP_LEFT) {
                     return 2
-                } else if (onRight) {
+                } else if (this.INDEX_TMP_RIGHT) {
                     return 3
                 }
             }
@@ -111,6 +120,8 @@
                     }
                 }
             }
+            index = null
+            tmpitem = null
         }
 
         refresh (scope) {
@@ -135,6 +146,9 @@
             for (let i = 0, len = this.nodes.length; i < len; i++) {
                 this.nodes[i].refresh(scope);
             }
+
+            index = null
+            item = null
         }
 
         retrieve (rect) {
@@ -156,6 +170,8 @@
                     }
                 }
             }
+
+            index = null
 
             return result
         }
@@ -264,6 +280,17 @@
                         rect.y + rect.h - this.h : rect.y)
                 }
             }
+
+            tRect1
+             = tRect2
+             = thisRect
+             = sWidthSum
+             = sHeightSum
+             = dWidth
+             = dHeight
+             = onHorizontal
+             = onVertical
+             = focusPoint = null
         }
 
         carve (cX, cY) {
@@ -292,6 +319,12 @@
                     new Rect(this.x, cY, this.w, this.h - dY)
                 )
             }
+
+            temp.length = 0
+            dX
+            = dY
+            = carveX
+            = carveY = null
 
             return result
         }
@@ -481,6 +514,11 @@
             this.setCanvas(canvas)
             this.init()
             this.loop()
+            this.DRAW_INDEX = 0
+            this.DRAW_LEN = 0
+            this.DRAW_J = 0
+            this.DRAW_TMP_LEN = 0
+            this.DRAW_TMP_RECT = []
         }
 
         setCanvas (canvas) {
@@ -512,35 +550,32 @@
                 this.dotArr.push(dot)
                 this.tree.insert(dot)
             }
+
         }
 
         draw () {
-            let i
-            let j
-            let len
-            let tmplen
-            let tempRect = []
+            this.DRAW_TMP_RECT.length = 0
 
             this.cxt.clearRect(0, 0, this.screenWidth, this.screenHeight)
 
             this.tree.refresh()
 
-            for (i = 0, len = this.dotArr.length; i < len; i++) {
-
-                tempRect = this.tree.retrieve(this.dotArr[i])
+            for (this.DRAW_INDEX = 0, this.DRAW_LEN = this.dotArr.length; this.DRAW_INDEX < this.DRAW_LEN; this.DRAW_INDEX++) {
+                this.DRAW_TMP_RECT.length = 0
+                this.DRAW_TMP_RECT = this.tree.retrieve(this.dotArr[this.DRAW_INDEX])
 
                 if (this.lineLink.show) {
-                    this.dotArr[i].canLink(tempRect, this.cxt)
+                    this.dotArr[this.DRAW_INDEX].canLink(this.DRAW_TMP_RECT, this.cxt)
                 }
 
                 if (this.dot.physical) {
-                    for (j = 0, tmplen = tempRect.length; j < tmplen; j++) {
-                        this.dotArr[i].isCollide(this.dotArr[i], tempRect[j])
+                    for (this.DRAW_J = 0, this.DRAW_TMP_LEN = this.DRAW_TMP_RECT.length; this.DRAW_J < this.DRAW_TMP_LEN; this.DRAW_J++) {
+                        this.dotArr[this.DRAW_INDEX].isCollide(this.dotArr[this.DRAW_INDEX], this.DRAW_TMP_RECT[this.DRAW_J])
                     }
                 }
 
-                this.dotArr[i].run(this.screenWidth, this.screenHeight)
-                this.dotArr[i].draw(this.cxt)
+                this.dotArr[this.DRAW_INDEX].run(this.screenWidth, this.screenHeight)
+                this.dotArr[this.DRAW_INDEX].draw(this.cxt)
             }
 
             requestAnimationFrame(this.draw.bind(this))
@@ -552,4 +587,4 @@
     }
     
     return Qarticles
-});
+}));
