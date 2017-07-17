@@ -55,7 +55,7 @@ var lineColorFuc = function (dot, w, h) {
     return `rgba(${Math.floor(255 * (1 - dot.x / w))}, ${Math.floor(255 * (1 - dot.y / h))},${Math.floor(255 * (dot.speedArr[0]/ 100))}, 0.1)`
 }
 
-var covSpeedFuc = (speed) => {
+var covSpeedFuc = function (speed) {
     return  Math.random() * speed * (Math.random() * 10 > 5 ? -1 : 1)
 }
 
